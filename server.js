@@ -1,17 +1,30 @@
-var express = require('express'),
+const express = require('express'),
   app = express(),
   server = require('http').createServer(app),
   bodyParser = require('body-parser'),
   io = require('socket.io')(server);
 
+const config = require('./config/database');
+// connect database
+const mongoose = require('mongoose');
+mongoose.connect(config.database, () => {
+  console.log('Connected database...');
+});
+
 const logger = require('morgan');
 const router = express.Router();
-const port = process.env.PORT || 7777;
+const port = process.env.PORT || 7000;
 
 app.use(bodyParser.json());
 app.use(logger('dev'));
 //app.use('/api/v1', router);
+
+// sub string method
 const onmessage = require('./onmessage');
+
+// Controller
+const logmachine = require('./controllers/logMachine');
+const setmachine = require('./controllers/setMachine');
 
 server.listen(port);
 console.log(`App Runs on ${port}`);
@@ -26,7 +39,7 @@ var mqtt = require('mqtt');
 // uKQSMOpZiih1
 var options = {
 
-  port:17037,
+  port: 17037,
   host: 'mqtt://m13.cloudmqtt.com',
   clientId: 'mqttjs_' + Math.random().toString(16).substr(2, 8),
   username: 'vcniortv',
@@ -40,20 +53,17 @@ var options = {
 }
 
 var client = mqtt.connect('mqtt://m13.cloudmqtt.com', options);
-var topictest = ['SEND', 'SETDEVICE', 'APPSET','SETAPP'];
+var topictest = ['SEND', 'SETDEVICE','SETAPP'];
 //var data;
 
-client.on('connect', function () {
+client.on('connect', () => {
   console.log('connected');
-  client.subscribe(topictest, function () {
+  client.subscribe(topictest, () => {
     console.log('subscribe : ' + topictest);
   });
 
 });
 
-app.get('/', function (req, res) {
-  res.sendFile(__dirname + '/index.html');
-});
 
 
 io.on('connection', (socket) => {
@@ -87,15 +97,11 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('Test', (topic, message) => {
-    console.log(topic+ " "+message);
-    // console.log('Publishing to ' + topic);
-  });
 });
 
 
 // Receive message from server to app
-client.on('message', function (topic, payload) {
+client.on('message', (topic, payload) => {
   console.log(topic + '=' + payload);
   if (topic == "SEND") {
     var message = onmessage.messagecomming(payload);
@@ -103,6 +109,11 @@ client.on('message', function (topic, payload) {
       console.log({ message: 'data lost' });
     } else {
       console.log(topic + " " + "message: %j", message);
+      logmachine.newlog(parseFloat(message.temperasure),
+        parseFloat(message.humidity),
+        parseFloat(message.hour),
+        parseFloat(message.day),
+        parseFloat(message.connected));
       io.emit('DeviceSend', {
         'temperature': message.temperasure,
         'humidity': message.humidity,
@@ -112,17 +123,21 @@ client.on('message', function (topic, payload) {
       });
     }
   }
-  else if (topic == "DEVICESET") {
+  else if (topic == "SETDEVICE") {
     var message = onmessage.messagecommingSet(payload);
     if (message.lost == 0) {
       console.log({ message: 'data lost' });
     } else {
       console.log(topic + " " + "message: %j", message);
-       io.emit('DeviceSet', {
+      setmachine.setdata(parseFloat(message.temperasure),
+        parseFloat(message.humidity),
+        parseFloat(message.hour),
+        parseFloat(message.reset));
+      io.emit('DeviceSet', {
         'temperature': message.temperasure,
         'humidity': message.humidity,
         'hour': message.hour
       });
     }
-  }         
+  }
 });

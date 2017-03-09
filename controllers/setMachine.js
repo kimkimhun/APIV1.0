@@ -1,6 +1,6 @@
 const SetMachine = require('../models/Setmachine');
 
-module.exports.newlog = (temperature, humidity, hour, reset)=>{
+module.exports.setdata = (temperature, humidity, hour, reset)=>{
    var now = new Date();
    var set = new SetMachine();      // create a new instance of the Bear model
         set.temperature = temperature;

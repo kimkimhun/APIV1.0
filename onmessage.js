@@ -36,7 +36,8 @@ exports.messagecommingSet = (payload) => {
         value = {
             "temperasure": arr[1],
             "humidity": arr[2],
-            "hour": arr[3]
+            "hour": arr[3],
+            "reset": arr[4]
         };
         return value;
     }
