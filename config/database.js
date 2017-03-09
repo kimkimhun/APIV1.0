@@ -1,3 +1,3 @@
 module.exports = {
-    database:"mogodb://localhost:27017:IOTSERVICE"
+    database:"mongodb://localhost:27017/IOTSERVICE"
 }
