@@ -1,5 +1,4 @@
-var mongoose = require('mongoose');
-
+const mongoose = require('mongoose');
 var SetMachineSchema = new mongoose.Schema({
   temperature: {
     type: Number
@@ -15,7 +14,7 @@ var SetMachineSchema = new mongoose.Schema({
   },
   date: {
     type: Date,
-    default: Date.now
+    default: Date.now()
   }
 });
 
