@@ -7,10 +7,11 @@ const express = require('express'),
 const config = require('./config/database');
 // connect database
 const mongoose = require('mongoose');
+mongoose.Promise = global.Promise;
 mongoose.connect(config.database, () => {
   console.log('Connected database...');
 });
-
+//
 const logger = require('morgan');
 const router = express.Router();
 const port = process.env.PORT || 7000;
