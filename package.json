@@ -6,7 +6,6 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node server.js"
-  
   },
   "author": "Chakkrawut Kuntakum",
   "license": "ISC",
@@ -17,5 +16,8 @@
     "morgan": "^1.8.1",
     "mqtt": "^2.3.0",
     "socket.io": "^1.7.2"
+  },
+  "devDependencies": {
+    "nodemon": "^1.11.0"
   }
 }
