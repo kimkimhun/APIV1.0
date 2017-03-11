@@ -40,11 +40,11 @@ var mqtt = require('mqtt');
 // uKQSMOpZiih1
 var options = {
 
-  port: 17037,
+  port: 14539,
   host: 'mqtt://m13.cloudmqtt.com',
   clientId: 'mqttjs_' + Math.random().toString(16).substr(2, 8),
-  username: 'vcniortv',
-  password: 'uKQSMOpZiih1',
+  username: 'mqttcore',
+  password: '123456',
   keepalive: 60,
   reconnectPeriod: 1000,
   protocolId: 'MQIsdp',
@@ -89,6 +89,7 @@ io.on('connection', (socket) => {
 
   // Receive message from App to server to device
   socket.on('SETAPP', (topic, payload) => {
+
     var message = onmessage.messageemit(payload);
     if (message.lost == 0) {
       console.log({ message: 'data lost' });
@@ -101,16 +102,20 @@ io.on('connection', (socket) => {
 });
 
 
+var timer=1;
+
+
 // Receive message from server to app
-client.on('message', (topic, payload) => {
+client.on('message', (topic, payload ) => {
   console.log(topic + '=' + payload);
   if (topic == "SEND") {
+    timer=1;
     var message = onmessage.messagecomming(payload);
     if (message.lost == 0) {
       console.log({ message: 'data lost' });
     } else {
       console.log(topic + " " + "message: %j", message);
-      logmachine.newlog(parseFloat(message.temperasure),
+    logmachine.newlog(parseFloat(message.temperasure),
         parseFloat(message.humidity),
         parseFloat(message.hour),
         parseFloat(message.day),
@@ -130,10 +135,10 @@ client.on('message', (topic, payload) => {
       console.log({ message: 'data lost' });
     } else {
       console.log(topic + " " + "message: %j", message);
-      setmachine.setdata(parseFloat(message.temperasure),
-        parseFloat(message.humidity),
-        parseFloat(message.hour),
-        parseFloat(message.reset));
+      // setmachine.setdata(parseFloat(message.temperasure),
+      //   parseFloat(message.humidity),
+      //   parseFloat(message.hour),
+      //   parseFloat(message.reset));
       io.emit('DeviceSet', {
         'temperature': message.temperasure,
         'humidity': message.humidity,
@@ -141,4 +146,25 @@ client.on('message', (topic, payload) => {
       });
     }
   }
-});
+ 
+},msgOut);
+
+var msgOut = setInterval(()=>{
+      console.log(timer);
+      if(timer===30){
+          logmachine.newlog(parseFloat(0.0),
+          parseFloat(0),
+          parseFloat(0),
+          parseFloat(0),
+          parseFloat(0));
+          io.emit('DeviceSend', {
+          'temperature': 0.0,
+          'humidity': 0,
+          'hour': 0,
+          'day': 0,
+          'connect': 0
+          });
+      }
+      timer = timer + 1;
+    },1000);
+
