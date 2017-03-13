@@ -50,11 +50,11 @@ const mqtt = require('mqtt');
 // uKQSMOpZiih1
 const options = {
 
-  port: 17037,
+  port: 14539,
   host: 'mqtt://m13.cloudmqtt.com',
   clientId: 'mqttjs_' + Math.random().toString(16).substr(2, 8),
-  username: 'vcniortv',
-  password: 'uKQSMOpZiih1',
+  username: 'mqttcore',
+  password: '123456',
   keepalive: 60,
   reconnectPeriod: 1000,
   protocolId: 'MQIsdp',
@@ -78,7 +78,7 @@ client.on('connect', () => {
 
 io.on('connection', (socket) => {
 
-  console.log('a user connected  : ' + socket.id);
+  //console.log('a user connected  : ' + socket.id);
 
   //  socket.on('subscribe', function (data) {
   //  console.log('Subscribing to '+data.topic);
@@ -124,15 +124,6 @@ client.on('message', (topic, payload) => {
       console.log({ message: 'data lost' });
     } else {
       console.log(topic + " " + "message: %j", message);
-
-      fcm.send(messageNotification, function (err) {
-        if (err) {
-          console.log(err);
-        } else {
-          console.log("Successfully sent with response: ");
-        }
-      });
-
       logmachine.newlog(parseFloat(message.temperasure),
         parseFloat(message.humidity),
         parseFloat(message.hour),
@@ -154,10 +145,10 @@ client.on('message', (topic, payload) => {
       console.log({ message: 'data lost' });
     } else {
       console.log(topic + " " + "message: %j", message);
-      // setmachine.setdata(parseFloat(message.temperasure),
-      //   parseFloat(message.humidity),
-      //   parseFloat(message.hour),
-      //   parseFloat(message.reset));
+      setmachine.setdata(parseFloat(message.temperasure),
+        parseFloat(message.humidity),
+        parseFloat(message.hour),
+        parseFloat(message.reset));
       io.emit('DeviceSet', {
         'temperature': message.temperasure,
         'humidity': message.humidity,
@@ -169,7 +160,7 @@ client.on('message', (topic, payload) => {
 }, msgOut);
 
 var msgOut = setInterval(() => {
-  console.log(timer);
+  //console.log(timer);
   if (timer === 30) {
     logmachine.newlog(parseFloat(0.0),
       parseFloat(0),
@@ -183,18 +174,26 @@ var msgOut = setInterval(() => {
       'day': 0,
       'connect': 0
     });
+    
+      fcm.send(messageNotification, (err)=> {
+        if (err) console.log(err); 
+      });
+
   }
   timer = timer + 1;
 }, 1000);
 
+
+// Token
 var url = 'https://fcm.googleapis.com/fcm/send';
 var messageNotification = { //this may vary according to the message type (single recipient, multicast, topic, et cetera)
-  to: '1:605772801169:android:2858f4a0bedd3b3b', 
+  to: 'ezfTiclKVkI:APA91bHHPCpbI9rwXps10r-x0F4wLChfU0JKLMXmR9YwAD6L8EbZdgWC0D2LZsnFsaEMr11pbgILvmRCeKybXrOdqWdM8lIINQTfrrme5nZYlOy_9u9cdzMASSTAq8FP1ylyymlqLBoT', 
   priority:"high",
   notification: {
     title: 'Title of your push notification',
-    text: 'notification',
+    text: 'Network have problem',
     sound: "default",
-    badge: 1
+    badge: 1,
+    click_action: "OPEN_HomeACtivity"
   }
 };
