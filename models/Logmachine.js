@@ -12,9 +12,6 @@ var LogMachineSchema = new mongoose.Schema({
   day: {
     type: Number
   },
-  connect: {
-    type: Number
-  },
   date: {
     type: Date,
     default: Date.now()

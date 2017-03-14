@@ -12,8 +12,7 @@ exports.messagecomming = (payload) => {
             "temperasure": arr[1],
             "humidity": arr[2],
             "hour": arr[3],
-            "day": arr[4],
-            "connected": arr[5]
+            "day": arr[4]
         };
         return value;
     }

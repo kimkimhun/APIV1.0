@@ -127,15 +127,14 @@ client.on('message', (topic, payload) => {
       logmachine.newlog(parseFloat(message.temperasure),
         parseFloat(message.humidity),
         parseFloat(message.hour),
-        parseFloat(message.day),
-        parseFloat(message.connected));
+        parseFloat(message.day));
 
       io.emit('DeviceSend', {
         'temperature': message.temperasure,
         'humidity': message.humidity,
         'hour': message.hour,
         'day': message.day,
-        'connect': message.connected
+        'connect': 1
       });
     }
   }
@@ -161,9 +160,8 @@ client.on('message', (topic, payload) => {
 
 var msgOut = setInterval(() => {
   //console.log(timer);
-  if (timer === 30) {
+  if (timer === 60) {
     logmachine.newlog(parseFloat(0.0),
-      parseFloat(0),
       parseFloat(0),
       parseFloat(0),
       parseFloat(0));
@@ -174,10 +172,10 @@ var msgOut = setInterval(() => {
       'day': 0,
       'connect': 0
     });
-    
-      fcm.send(messageNotification, (err)=> {
-        if (err) console.log(err); 
-      });
+
+    fcm.send(messageNotification, (err) => {
+      if (err) console.log(err);
+    });
 
   }
   timer = timer + 1;
@@ -187,8 +185,8 @@ var msgOut = setInterval(() => {
 // Token
 var url = 'https://fcm.googleapis.com/fcm/send';
 var messageNotification = { //this may vary according to the message type (single recipient, multicast, topic, et cetera)
-  to: 'ezfTiclKVkI:APA91bHHPCpbI9rwXps10r-x0F4wLChfU0JKLMXmR9YwAD6L8EbZdgWC0D2LZsnFsaEMr11pbgILvmRCeKybXrOdqWdM8lIINQTfrrme5nZYlOy_9u9cdzMASSTAq8FP1ylyymlqLBoT', 
-  priority:"high",
+  to: 'ezfTiclKVkI:APA91bHHPCpbI9rwXps10r-x0F4wLChfU0JKLMXmR9YwAD6L8EbZdgWC0D2LZsnFsaEMr11pbgILvmRCeKybXrOdqWdM8lIINQTfrrme5nZYlOy_9u9cdzMASSTAq8FP1ylyymlqLBoT',
+  priority: "high",
   notification: {
     title: 'Title of your push notification',
     text: 'Network have problem',
