@@ -1,5 +1,4 @@
-var mongoose = require('mongoose');
-
+const mongoose = require('mongoose');
 var LogMachineSchema = new mongoose.Schema({
   temperature: {
     type: Number
@@ -13,11 +12,9 @@ var LogMachineSchema = new mongoose.Schema({
   day: {
     type: Number
   },
-  connect: {
-    type: Number
-  },
   date: {
-    type: Date
+    type: Date,
+    default: Date.now
   }
 });
 

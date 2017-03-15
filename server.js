@@ -1,22 +1,46 @@
-var express = require('express'),
+//Dependencies
+const express = require('express'),
   app = express(),
   server = require('http').createServer(app),
   bodyParser = require('body-parser'),
   io = require('socket.io')(server);
 
+// Config
+const config = require('./config/config');
+
+// Server Notification
+const FCM = require('fcm-node');
+const fcm = new FCM(config.serverKey);
+//
+
+
+// connect database
+const mongoose = require('mongoose');
+mongoose.Promise = global.Promise;
+mongoose.connect(config.database, () => {
+  console.log('Connected database...');
+});
+//
 const logger = require('morgan');
 const router = express.Router();
-const port = process.env.PORT || 7777;
+const port = process.env.PORT || 8080;
 
 app.use(bodyParser.json());
 app.use(logger('dev'));
 //app.use('/api/v1', router);
+
+// sub string method
 const onmessage = require('./onmessage');
+
+// Controller
+const logmachine = require('./controllers/logMachine');
+const setmachine = require('./controllers/setMachine');
 
 server.listen(port);
 console.log(`App Runs on ${port}`);
 
-var mqtt = require('mqtt');
+// Mqtt Config
+const mqtt = require('mqtt');
 // mqttcore
 // 123456
 //port: 14539
@@ -24,9 +48,9 @@ var mqtt = require('mqtt');
 // 17037
 // vcniortv
 // uKQSMOpZiih1
-var options = {
+const options = {
 
-  port:17037,
+  port: 17037,
   host: 'mqtt://m13.cloudmqtt.com',
   clientId: 'mqttjs_' + Math.random().toString(16).substr(2, 8),
   username: 'vcniortv',
@@ -38,27 +62,23 @@ var options = {
   clean: true,
   encoding: 'utf8'
 }
+//
 
-var client = mqtt.connect('mqtt://m13.cloudmqtt.com', options);
-var topictest = ['SEND', 'SETDEVICE', 'APPSET','SETAPP'];
+const client = mqtt.connect('mqtt://m13.cloudmqtt.com', options);
+const topictest = ['SEND', 'SETDEVICE', 'SETAPP'];
 //var data;
 
-client.on('connect', function () {
+client.on('connect', () => {
   console.log('connected');
-  client.subscribe(topictest, function () {
+  client.subscribe(topictest, () => {
     console.log('subscribe : ' + topictest);
   });
 
 });
 
-app.get('/', function (req, res) {
-  res.sendFile(__dirname + '/index.html');
-});
-
-
 io.on('connection', (socket) => {
 
-  console.log('a user connected  : ' + socket.id);
+  //console.log('a user connected  : ' + socket.id);
 
   //  socket.on('subscribe', function (data) {
   //  console.log('Subscribing to '+data.topic);
@@ -78,6 +98,7 @@ io.on('connection', (socket) => {
 
   // Receive message from App to server to device
   socket.on('SETAPP', (topic, payload) => {
+
     var message = onmessage.messageemit(payload);
     if (message.lost == 0) {
       console.log({ message: 'data lost' });
@@ -87,42 +108,90 @@ io.on('connection', (socket) => {
     }
   });
 
-  socket.on('Test', (topic, message) => {
-    console.log(topic+ " "+message);
-    // console.log('Publishing to ' + topic);
-  });
 });
 
 
+var timer = 1;
+
+
 // Receive message from server to app
-client.on('message', function (topic, payload) {
+client.on('message', (topic, payload) => {
   console.log(topic + '=' + payload);
   if (topic == "SEND") {
+    timer = 1;
     var message = onmessage.messagecomming(payload);
     if (message.lost == 0) {
       console.log({ message: 'data lost' });
     } else {
       console.log(topic + " " + "message: %j", message);
+      logmachine.newlog(parseFloat(message.temperasure),
+        parseFloat(message.humidity),
+        parseFloat(message.hour),
+        parseFloat(message.day));
+
       io.emit('DeviceSend', {
         'temperature': message.temperasure,
         'humidity': message.humidity,
         'hour': message.hour,
         'day': message.day,
-        'connect': message.connected
+        'connect': 1
       });
     }
   }
-  else if (topic == "DEVICESET") {
+  else if (topic == "SETDEVICE") {
     var message = onmessage.messagecommingSet(payload);
     if (message.lost == 0) {
       console.log({ message: 'data lost' });
     } else {
       console.log(topic + " " + "message: %j", message);
-       io.emit('DeviceSet', {
+      setmachine.setdata(parseFloat(message.temperasure),
+        parseFloat(message.humidity),
+        parseFloat(message.hour),
+        parseFloat(message.reset));
+      io.emit('DeviceSet', {
         'temperature': message.temperasure,
         'humidity': message.humidity,
         'hour': message.hour
       });
     }
-  }         
-});
+  }
+
+}, msgOut);
+
+var msgOut = setInterval(() => {
+  //console.log(timer);
+  if (timer === 60) {
+    logmachine.newlog(parseFloat(0.0),
+      parseFloat(0),
+      parseFloat(0),
+      parseFloat(0));
+    io.emit('DeviceSend', {
+      'temperature': 0.0,
+      'humidity': 0,
+      'hour': 0,
+      'day': 0,
+      'connect': 0
+    });
+
+    fcm.send(messageNotification, (err) => {
+      if (err) console.log(err);
+    });
+
+  }
+  timer = timer + 1;
+}, 1000);
+
+
+// Token
+var url = 'https://fcm.googleapis.com/fcm/send';
+var messageNotification = { //this may vary according to the message type (single recipient, multicast, topic, et cetera)
+  to: 'ezfTiclKVkI:APA91bHHPCpbI9rwXps10r-x0F4wLChfU0JKLMXmR9YwAD6L8EbZdgWC0D2LZsnFsaEMr11pbgILvmRCeKybXrOdqWdM8lIINQTfrrme5nZYlOy_9u9cdzMASSTAq8FP1ylyymlqLBoT',
+  priority: "high",
+  notification: {
+    title: 'Title of your push notification',
+    text: 'Network have problem',
+    sound: "default",
+    badge: 1,
+    click_action: "OPEN_HomeACtivity"
+  }
+};
