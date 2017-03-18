@@ -36,6 +36,11 @@ const onmessage = require('./onmessage');
 const logmachine = require('./controllers/logMachine');
 const setmachine = require('./controllers/setMachine');
 
+
+app.get('/',(req,res)=>{
+   res.sendFile(__dirname + '/index.html');
+});
+
 server.listen(port);
 console.log(`App Runs on ${port}`);
 
@@ -99,7 +104,7 @@ io.on('connection', (socket) => {
   // Receive message from App to server to device
   socket.on('SETAPP', (topic, payload) => {
 
-    var message = onmessage.messageemit(payload);
+    var message = onmessage.messageFromApp(payload);
     if (message.lost == 0) {
       console.log({ message: 'data lost' });
     } else {
@@ -144,14 +149,16 @@ client.on('message', (topic, payload) => {
       console.log({ message: 'data lost' });
     } else {
       console.log(topic + " " + "message: %j", message);
-      setmachine.setdata(parseFloat(message.temperasure),
-        parseFloat(message.humidity),
-        parseFloat(message.hour),
-        parseFloat(message.reset));
+      // setmachine.setdata(parseFloat(message.temperasure),
+      //   parseFloat(message.humidity),
+      //   parseFloat(message.hour),
+      //   parseFloat(message.reset));
       io.emit('DeviceSet', {
         'temperature': message.temperasure,
         'humidity': message.humidity,
-        'hour': message.hour
+        'hour': message.hour,
+        // 'day':message.day,
+        'reset':message.reset
       });
     }
   }

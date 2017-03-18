@@ -9,12 +9,15 @@ var SetMachineSchema = new mongoose.Schema({
   hour: {
     type: Number
   },
+  day:{
+    type: Number
+  },
   reset: {
     type: Number
   },
   date: {
     type: Date,
-    default: Date.now()
+    default: Date.now
   }
 });
 
