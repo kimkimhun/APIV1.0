@@ -36,7 +36,7 @@ const onmessage = require('./onmessage');
 const logmachine = require('./controllers/logMachine');
 const setmachine = require('./controllers/setMachine');
 
-
+// Call index
 app.get('/',(req,res)=>{
    res.sendFile(__dirname + '/index.html');
 });
@@ -83,7 +83,7 @@ client.on('connect', () => {
 
 io.on('connection', (socket) => {
 
-  //console.log('a user connected  : ' + socket.id);
+  console.log('a user connected  : ' + socket.id);
 
   //  socket.on('subscribe', function (data) {
   //  console.log('Subscribing to '+data.topic);
