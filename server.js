@@ -55,11 +55,11 @@ const mqtt = require('mqtt');
 // uKQSMOpZiih1
 const options = {
 
-  port: 14539,
+  port: 17037,
   host: 'mqtt://m13.cloudmqtt.com',
   clientId: 'mqttjs_' + Math.random().toString(16).substr(2, 8),
-  username: 'mqttcore',
-  password: '123456',
+  username: 'vcniortv',
+  password: 'uKQSMOpZiih1',
   keepalive: 60,
   reconnectPeriod: 1000,
   protocolId: 'MQIsdp',
