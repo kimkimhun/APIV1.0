@@ -55,11 +55,11 @@ const mqtt = require('mqtt');
 // uKQSMOpZiih1
 const options = {
 
-  port: 17037,
+  port: 14539,
   host: 'mqtt://m13.cloudmqtt.com',
   clientId: 'mqttjs_' + Math.random().toString(16).substr(2, 8),
-  username: 'vcniortv',
-  password: 'uKQSMOpZiih1',
+  username: 'mqttcore',
+  password: '123456',
   keepalive: 60,
   reconnectPeriod: 1000,
   protocolId: 'MQIsdp',
@@ -117,7 +117,7 @@ io.on('connection', (socket) => {
 
 
 var timer = 1;
-
+var count = 1;
 
 // Receive message from server to app
 client.on('message', (topic, payload) => {
@@ -141,6 +141,7 @@ client.on('message', (topic, payload) => {
         'day': message.day,
         'connect': 1
       });
+      
     }
   }
   else if (topic == "SETDEVICE") {
@@ -166,8 +167,9 @@ client.on('message', (topic, payload) => {
 }, msgOut);
 
 var msgOut = setInterval(() => {
-  //console.log(timer);
-  if (timer === 60) {
+  console.log(timer);
+  if (timer ===  (60*count)) {
+    count++;
     logmachine.newlog(parseFloat(0.0),
       parseFloat(0),
       parseFloat(0),
@@ -183,6 +185,7 @@ var msgOut = setInterval(() => {
     fcm.send(messageNotification, (err) => {
       if (err) console.log(err);
     });
+    console.log(count);
 
   }
   timer = timer + 1;
@@ -195,10 +198,10 @@ var messageNotification = { //this may vary according to the message type (singl
   to: 'ezfTiclKVkI:APA91bHHPCpbI9rwXps10r-x0F4wLChfU0JKLMXmR9YwAD6L8EbZdgWC0D2LZsnFsaEMr11pbgILvmRCeKybXrOdqWdM8lIINQTfrrme5nZYlOy_9u9cdzMASSTAq8FP1ylyymlqLBoT',
   priority: "high",
   notification: {
-    title: 'Title of your push notification',
+    title: 'Egg Incubator ',
     text: 'Network have problem',
     sound: "default",
     badge: 1,
-    click_action: "OPEN_HomeACtivity"
+    click_action: "OPEN_HomeActivity"
   }
 };
