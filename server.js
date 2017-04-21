@@ -55,11 +55,11 @@ const mqtt = require('mqtt');
 // uKQSMOpZiih1
 const options = {
 
-  port: 14539,
+  port: 17037,
   host: 'mqtt://m13.cloudmqtt.com',
   clientId: 'mqttjs_' + Math.random().toString(16).substr(2, 8),
-  username: 'mqttcore',
-  password: '123456',
+  username: 'vcniortv',
+  password: 'uKQSMOpZiih1',
   keepalive: 60,
   reconnectPeriod: 1000,
   protocolId: 'MQIsdp',
@@ -85,18 +85,6 @@ io.on('connection', (socket) => {
 
   console.log('a user connected  : ' + socket.id);
 
-  //  socket.on('subscribe', function (data) {
-  //  console.log('Subscribing to '+data.topic);
-  //  socket.join(data.topic);
-  //  client.subscribe(data.topic);
-  //  });
-
-  //  socket.on('publish', function (data) {
-  //      console.log('Publishing to '+data.topic);
-  //      client.publish(data.topic,data.payload);
-  //  });
-
-
   socket.on('disconnect', function () {
     console.log('a user disconnected  : ' + socket.id);
   });
@@ -117,7 +105,7 @@ io.on('connection', (socket) => {
 
 
 var timer = 1;
-var count = 1;
+
 
 // Receive message from server to app
 client.on('message', (topic, payload) => {
@@ -158,7 +146,7 @@ client.on('message', (topic, payload) => {
         'temperature': message.temperasure,
         'humidity': message.humidity,
         'hour': message.hour,
-        // 'day':message.day,
+        'day':message.day,
         'reset':message.reset
       });
     }
@@ -168,8 +156,7 @@ client.on('message', (topic, payload) => {
 
 var msgOut = setInterval(() => {
   console.log(timer);
-  if (timer ===  (60*count)) {
-    count++;
+  if (timer === 60) {
     logmachine.newlog(parseFloat(0.0),
       parseFloat(0),
       parseFloat(0),
@@ -185,8 +172,6 @@ var msgOut = setInterval(() => {
     fcm.send(messageNotification, (err) => {
       if (err) console.log(err);
     });
-    console.log(count);
-
   }
   timer = timer + 1;
 }, 1000);
